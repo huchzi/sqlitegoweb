@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="assets/sqlitedb.css">
+  <link rel="stylesheet" href="assets/fontawesome-free-6.4.2-web/css/all.css">
+  <title> SQLite with Go on the Web </title>
+  <link rel="icon" type="image/x-icon" href="/assets/fontawesome-free-6.4.2-web/svgs/solid/record-vinyl.svg">
+</head>
+
+<body>
+<h1><i class="fa-solid fa-envelope"></i>  Response to your query</h1>
+
+<div>
+    <a href="/query"> [ <i class="fa-solid fa-reply"></i> New Query ] </a>
+</div>
+
+<br>
+<br>
+
+<table style="width:50%">
+    <tr>
+        <th>ID</th>
+        <th>Artist</th>
+        <th>Album</th>
+        <th>Price (USD)</th>
+    </tr>
+
+    {{ range . }} 
+    <tr>
+        <th>{{.Id}}</th>
+        <td>{{.Artist}}</td>
+        <td>{{.Title}}</td>
+        <td>{{.Price}}</td>
+    </tr>
+    {{ end }}
+</table>
+
+</body>
+</html>
