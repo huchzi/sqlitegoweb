@@ -97,7 +97,7 @@ func main() {
 	}
 
 	http.HandleFunc("/result", resultHandler)
-	http.HandleFunc("/query", queryHandler)
+	http.HandleFunc("/", queryHandler)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
-	log.Fatal(http.ListenAndServe(":8090", nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
