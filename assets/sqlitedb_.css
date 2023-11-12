@@ -2,6 +2,17 @@ html * {
     font-family: Nunito, sans-serif; 
 }
 
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+li a {
+    display: block;
+    width: 60px;
+  }
+
 body {
     background-color: cornflowerblue;
 }
@@ -26,3 +37,4 @@ th {
 td {
     text-align: left; padding: 5px; 
 }
+

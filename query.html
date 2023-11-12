@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta charset="UTF-8"> 
 <html>
 <head>
   <link rel="stylesheet" href="assets/sqlitedb.css">
@@ -8,7 +9,23 @@
 </head>
 
 <body>
+
+<header>
+<h1>SQLite with Go on the web</h1>
+</header>
+
 <h1><i class="fa-solid fa-clipboard-question"></i>  Search by artist</h1>
+
+<ul>
+  <li>
+      <a href="/query"> <i class="fa-solid fa-reply"></i> Query
+      </a>
+  </li>
+  <li>
+      <a href="/entryForm"> <i class="fa-solid fa-reply"></i> New Entry
+      </a>
+  </li>
+</ul>
 
 <form action="/result" method="POST">
     <label> Artist name </label><br>

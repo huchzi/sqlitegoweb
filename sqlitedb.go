@@ -6,13 +6,13 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var db *sql.DB
 var albums []Album
+var templates = template.Must(template.ParseFiles("entryForm.html", "query.html", "result.html"))
 
 type Album struct {
 	Id     int64
@@ -53,19 +53,26 @@ func resultHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tmpl, err := template.ParseFiles("result.html")
-	if err != nil {
-		fmt.Fprintln(w, err.Error())
-	}
-	err = tmpl.Execute(w, albums)
-	if err != nil {
-		fmt.Fprintln(w, err.Error())
-	}
+
+	templates.ExecuteTemplate(w, "result.html", albums)
 }
 
 func queryHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("query.html"))
-	tmpl.Execute(w, nil)
+	templates.ExecuteTemplate(w, "query.html", nil)
+}
+
+func newEntryHandler(w http.ResponseWriter, r *http.Request) {
+	templates.ExecuteTemplate(w, "entryForm.html", nil)
+}
+
+func writeToDB(w http.ResponseWriter, r *http.Request) {
+	newAlbum := Album{Id: 1, Artist: r.FormValue("artist"), Title: r.FormValue("title"), Price: 0.0}
+	fmt.Println(newAlbum)
+	_, err := db.Exec("INSERT INTO album (title, artist, price) VALUES (?, ?, ?)", newAlbum.Title, newAlbum.Artist, newAlbum.Price)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func main() {
@@ -77,27 +84,10 @@ func main() {
 	}
 	defer db.Close()
 
-	name := make([]rune, 0, 20)
-	for i, s := range os.Args {
-		switch {
-		case i == 0:
-			continue
-		case i > 1:
-			name = append(name, ' ')
-		}
-		name = append(name, []rune(s)...)
-	}
-	namestring := string(name)
-
-	fmt.Printf("\nLooking for albums by '%s'\n\n", namestring)
-
-	albums, err = albumsByArtist(namestring)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	http.HandleFunc("/result", resultHandler)
 	http.HandleFunc("/", queryHandler)
+	http.HandleFunc("/result", resultHandler)
+	http.HandleFunc("/entryForm", newEntryHandler)
+	http.HandleFunc("/writeToDB", writeToDB)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
