@@ -9,16 +9,27 @@
 </head>
 
 <body>
-<h1><i class="fa-solid fa-clipboard-question"></i>  New record</h1>
+
+    <header>
+        <h1><i class="fa-solid fa-record-vinyl"></i>     SQLite with Go on the web</h1>
+    </header>
 
 <ul>
     <li>
-        <a href="/query">Query</a>
+        <a href="/query"> <i class="fa-solid fa-clipboard-question"></i> Search by artist
+        </a>
     </li>
     <li>
-        <a href="/entryForm">New Entry</a>
+        <a href="/entryForm"> <i class="fa-solid fa-file-text"></i> Add record
+        </a>
     </li>
-</ul>
+  </ul>
+
+  <br>
+
+<h2><i class="fa-solid fa-file-text"></i>  New record</h2>
+
+<br>
 
 <form action="/writeToDB" method="POST">
     <label> Artist name </label>
@@ -35,7 +46,8 @@
     <br>
     <input type="text" name="price">
     <br>
-    <input type="submit", value="Search">
+    <br>
+    <input type="submit", value="Add to database">
 </form>
 
 </body>

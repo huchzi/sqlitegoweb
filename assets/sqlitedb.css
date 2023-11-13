@@ -1,0 +1,56 @@
+html * { 
+    font-family: Nunito, sans-serif; 
+}
+
+header {
+    height: 80px;
+    line-height: 80px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    color: white;
+    background-color: #04AA6D;
+}
+
+a {
+    display: block;
+    padding: 8px;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: inline;
+    width: 180px;
+  }
+
+li a:hover {
+    background-color: #f1f1f1;
+}
+
+li a.active {
+    background-color: #04AA6D;
+    color: white;
+ }
+
+
+table { 
+    border-collapse: collapse; 
+}
+tr {
+    border-bottom: 1px solid #ddd; 
+}
+th {
+    text-align: left; padding: 5px; 
+}
+td {
+    text-align: left; padding: 5px; 
+}
+

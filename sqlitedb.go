@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -66,8 +67,9 @@ func newEntryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func writeToDB(w http.ResponseWriter, r *http.Request) {
-	newAlbum := Album{Id: 1, Artist: r.FormValue("artist"), Title: r.FormValue("title"), Price: 0.0}
-	fmt.Println(newAlbum)
+	price, _ := strconv.ParseFloat(r.FormValue("price"), 32)
+
+	newAlbum := Album{Id: 1, Artist: r.FormValue("artist"), Title: r.FormValue("title"), Price: float32(price)}
 	_, err := db.Exec("INSERT INTO album (title, artist, price) VALUES (?, ?, ?)", newAlbum.Title, newAlbum.Artist, newAlbum.Price)
 	if err != nil {
 		fmt.Println(err.Error())
