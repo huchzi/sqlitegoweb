@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -49,12 +50,20 @@ func albumsByArtist(name string) ([]Album, error) {
 
 func resultHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
+	var artistName string
 
-	albums, err = albumsByArtist(r.FormValue("name"))
+	fmt.Println(r.FormValue("artist"))
+	if r.FormValue("artist") != "" {
+		artistName = r.FormValue("artist")
+		writeToDB(r)
+	} else {
+		artistName = r.FormValue("name")
+	}
+
+	albums, err = albumsByArtist(artistName)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	templates.ExecuteTemplate(w, "result.html", albums)
 }
 
@@ -63,10 +72,32 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func newEntryHandler(w http.ResponseWriter, r *http.Request) {
-	templates.ExecuteTemplate(w, "entryForm.html", nil)
+	r.ParseForm()
+	if r.FormValue("artist") == "" {
+		templates.ExecuteTemplate(w, "entryForm.html", nil)
+		fmt.Println("First entry")
+	} else {
+		artistValid := r.FormValue("artist") != ""
+		titleValid := r.FormValue("title") != ""
+		_, err := strconv.ParseFloat(r.FormValue("price"), 32)
+		priceValid := err == nil
+
+		if artistValid && titleValid && priceValid {
+			fmt.Println("Entry accepted")
+			r.ParseForm()
+			fmt.Println(r.Form)
+			v := url.Values{}
+			v.Set("artist", "John Coltrane")
+			r.Form = v
+			http.Redirect(w, r, "/result", http.StatusFound)
+		} else {
+			fmt.Println("Entry error")
+			templates.ExecuteTemplate(w, "entryForm.html", "Entry error")
+		}
+	}
 }
 
-func writeToDB(w http.ResponseWriter, r *http.Request) {
+func writeToDB(r *http.Request) {
 	price, _ := strconv.ParseFloat(r.FormValue("price"), 32)
 
 	newAlbum := Album{Id: 1, Artist: r.FormValue("artist"), Title: r.FormValue("title"), Price: float32(price)}
@@ -74,7 +105,6 @@ func writeToDB(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func main() {
@@ -89,7 +119,6 @@ func main() {
 	http.HandleFunc("/", queryHandler)
 	http.HandleFunc("/result", resultHandler)
 	http.HandleFunc("/entryForm", newEntryHandler)
-	http.HandleFunc("/writeToDB", writeToDB)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
