@@ -92,6 +92,7 @@ func newEntryHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/result", http.StatusFound)
 		} else {
 			fmt.Println("Entry error")
+			templates.ExecuteTemplate(w, "query.html", nil)
 			templates.ExecuteTemplate(w, "entryForm.html", "Entry error")
 		}
 	}
