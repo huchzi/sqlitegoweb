@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -48,53 +47,26 @@ func albumsByArtist(name string) ([]Album, error) {
 	return albums, nil
 }
 
-func resultHandler(w http.ResponseWriter, r *http.Request) {
-	var err error
-	var artistName string
-
-	fmt.Println(r.FormValue("artist"))
-	if r.FormValue("artist") != "" {
-		artistName = r.FormValue("artist")
+func mainHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/query" {
+		templates.ExecuteTemplate(w, "query.html", nil)
+	}
+	if r.URL.Path == "/writeToDB" {
 		writeToDB(r)
-	} else {
-		artistName = r.FormValue("name")
+		albums, _ = albumsByArtist(r.FormValue("artist"))
+		templates.ExecuteTemplate(w, "result.html", albums)
 	}
-
-	albums, err = albumsByArtist(artistName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	templates.ExecuteTemplate(w, "result.html", albums)
-}
-
-func queryHandler(w http.ResponseWriter, r *http.Request) {
-	templates.ExecuteTemplate(w, "query.html", nil)
-}
-
-func newEntryHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	if r.FormValue("artist") == "" {
+	if r.URL.Path == "/entryForm" {
 		templates.ExecuteTemplate(w, "entryForm.html", nil)
-		fmt.Println("First entry")
-	} else {
-		artistValid := r.FormValue("artist") != ""
-		titleValid := r.FormValue("title") != ""
-		_, err := strconv.ParseFloat(r.FormValue("price"), 32)
-		priceValid := err == nil
+	}
+	if r.URL.Path == "/result" {
+		var err error
 
-		if artistValid && titleValid && priceValid {
-			fmt.Println("Entry accepted")
-			r.ParseForm()
-			fmt.Println(r.Form)
-			v := url.Values{}
-			v.Set("artist", "John Coltrane")
-			r.Form = v
-			http.Redirect(w, r, "/result", http.StatusFound)
-		} else {
-			fmt.Println("Entry error")
-			templates.ExecuteTemplate(w, "query.html", nil)
-			templates.ExecuteTemplate(w, "entryForm.html", "Entry error")
+		albums, err = albumsByArtist(r.FormValue("name"))
+		if err != nil {
+			log.Fatal(err)
 		}
+		templates.ExecuteTemplate(w, "result.html", albums)
 	}
 }
 
@@ -117,9 +89,7 @@ func main() {
 	}
 	defer db.Close()
 
-	http.HandleFunc("/", queryHandler)
-	http.HandleFunc("/result", resultHandler)
-	http.HandleFunc("/entryForm", newEntryHandler)
+	http.HandleFunc("/", mainHandler)
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
